@@ -11,8 +11,8 @@ from langchain.callbacks import get_openai_callback
 
 def main():
     load_dotenv()
-    st.set_page_config(page_title="Ask your PDF")
-    st.header("Ask your PDF 💬")
+    st.set_page_config(page_title="Chat With PDF")
+    st.header("Chat With PDF📄")
     
     # upload file
     pdf = st.file_uploader("Upload your PDF", type="pdf")
@@ -34,7 +34,7 @@ def main():
       chunks = text_splitter.split_text(text)
       
       # create embeddings
-      embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+      embeddings = OpenAIEmbeddings()
       knowledge_base = FAISS.from_texts(chunks, embeddings)
       
       # show user input
@@ -42,7 +42,7 @@ def main():
       if user_question:
         docs = knowledge_base.similarity_search(user_question)
         
-        llm = OpenAI(model="gpt-3.5-turbo")
+        llm = OpenAI(model_name="gpt-3.5-turbo-instruct")
         chain = load_qa_chain(llm, chain_type="stuff")
         with get_openai_callback() as cb:
           response = chain.run(input_documents=docs, question=user_question)
