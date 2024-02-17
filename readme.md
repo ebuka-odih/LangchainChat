@@ -9,6 +9,8 @@ The application reads the PDF and splits the text into smaller chunks that can b
 The application uses Streamlit to create the GUI and Langchain to deal with the LLM.
 
 
+
+
 ## Installation
 
 To install the repository, please clone this repository and install the requirements:
