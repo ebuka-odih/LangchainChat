@@ -8,6 +8,9 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain.llms import OpenAI
 from langchain.callbacks import get_openai_callback
 
+from langchain.chat_models import ChatOpenAI
+import openai
+
 
 def main():
     load_dotenv()
@@ -34,7 +37,7 @@ def main():
       chunks = text_splitter.split_text(text)
       
       # create embeddings
-      embeddings = OpenAIEmbeddings()
+      embeddings = OpenAIEmbeddings(model="text-embedding-3-large", dimensions=1024)
       knowledge_base = FAISS.from_texts(chunks, embeddings)
       
       # show user input
