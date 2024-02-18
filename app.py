@@ -68,7 +68,7 @@ def main():
         chunks = text_splitter.split_text(processed_text)
         
         # Create embeddings
-        embeddings = OpenAIEmbeddings(model="text-embedding-3-large", dimensions=1024)
+        embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
         knowledge_base = FAISS.from_texts(chunks, embeddings)
         
         # Show user input
