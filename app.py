@@ -36,7 +36,7 @@ def query_openai(processed_text, user_question):
             presence_penalty=0
         )
         return response.choices[0].message['content']
-    except openai.RateLimitError as err:
+    except openai.error.RateLimitError as err:
         return f"OpenAI error: {str(err)}"
     except Exception as e:
         return f"An unexpected error occurred: {str(e)}"
