@@ -7,12 +7,14 @@ from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
 import openai
 from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+from openai import OpenAI
 import os
 
 # Initialize the OpenAI API key
 load_dotenv()
 # openai.api_key = st.secrets["OPENAI_API_KEY"]
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Define a function to process text with Langchain
 def process_with_langchain(text, user_question):
@@ -23,20 +25,18 @@ def process_with_langchain(text, user_question):
 # Define a function to query OpenAI
 def query_openai(processed_text, user_question):
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": f"The following is a summary of the document: {processed_text[:1024]}..."},
-                {"role": "user", "content": user_question}
-            ],
-            temperature=1,
-            max_tokens=256,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0
-        )
-        return response.choices[0].message['content']
-    except openai.error.RateLimitError as err:
+        response = client.chat.completions.create(model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": f"The following is a summary of the document: {processed_text[:1024]}..."},
+            {"role": "user", "content": user_question}
+        ],
+        temperature=1,
+        max_tokens=256,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0)
+        return response.choices[0].message.content
+    except openai.RateLimitError as err:
         return f"OpenAI error: {str(err)}"
     except Exception as e:
         return f"An unexpected error occurred: {str(e)}"

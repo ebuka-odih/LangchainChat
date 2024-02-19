@@ -5,6 +5,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
+import openai
 from openai import OpenAI
 
 import os
@@ -39,8 +40,15 @@ def query_openai(processed_text, user_question):
         presence_penalty=0
         )
         return response.choices[0].message['content']
-    except openai.RateLimitError as err:
-        pass
+    except openai.APIConnectionError as e:
+        print("The server could not be reached")
+        print(e.__cause__)  # an underlying Exception, likely raised within httpx.
+    except openai.RateLimitError as e:
+        print("A 429 status code was received; we should back off a bit.")
+    except openai.APIStatusError as e:
+        print("Another non-200-range status code was received")
+        print(e.status_code)
+        print(e.response)
 
 # Define the main function for Streamlit app
 def main():
