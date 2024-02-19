@@ -6,6 +6,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
 import openai
+from openai import OpenAI
 import os
 
 # Initialize the OpenAI API key
@@ -35,7 +36,7 @@ def query_openai(processed_text, user_question):
             presence_penalty=0
         )
         return response.choices[0].message['content']
-    except openai.error.OpenAIError as err:
+    except openai.error.RateLimitError as err:
         return f"OpenAI error: {str(err)}"
     except Exception as e:
         return f"An unexpected error occurred: {str(e)}"

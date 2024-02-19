@@ -5,13 +5,13 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
-import openai
+from openai import OpenAI
+
 import os
 
 # Initialize the OpenAI API key
 load_dotenv()
 # openai.api_key = st.secrets["OPENAI_API_KEY"]
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Define a function to process text with Langchain
 def process_with_langchain(text, user_question):
@@ -21,24 +21,26 @@ def process_with_langchain(text, user_question):
 
 # Define a function to query OpenAI
 def query_openai(processed_text, user_question):
+    
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
+        # completion = client.completions.create(model="davinci-002", prompt="Hello world")
+        # chat_completion = client.chat.completions.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": "Hello world"}])
+        response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
                 {"role": "system", "content": f"The following is a summary of the document: {processed_text[:1024]}..."},
                 {"role": "user", "content": user_question}
             ],
-            temperature=1,
-            max_tokens=256,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0
+        temperature=1,
+        max_tokens=256,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
         )
         return response.choices[0].message['content']
-    except openai.error.OpenAIError as err:
-        return f"OpenAI error: {str(err)}"
-    except Exception as e:
-        return f"An unexpected error occurred: {str(e)}"
+    except openai.RateLimitError as err:
+        pass
 
 # Define the main function for Streamlit app
 def main():
@@ -68,7 +70,7 @@ def main():
         chunks = text_splitter.split_text(processed_text)
         
         # Create embeddings
-        embeddings = OpenAIEmbeddings(model="text-embedding-3-large", dimensions=1024)
+        embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
         knowledge_base = FAISS.from_texts(chunks, embeddings)
         
         # Show user input
